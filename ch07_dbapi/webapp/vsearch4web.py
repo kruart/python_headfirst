@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, escape
 from ch04_functions_modules.vsearch import search4letters
+import mysql.connector
 
 app = Flask(__name__)
 
@@ -27,10 +28,15 @@ def entry_page() -> 'html':
 
 
 def log_request(req: 'flask_request', res: str) -> None:
-    phrase = request.form['phrase']
-    letters = request.form['letters']
-    with open('vsearch.log', 'a') as logfile:
-        print(req.form, req.remote_addr, req.user_agent, res, file=logfile, sep='|')
+    """Log details of the web request and the results."""
+    dbconfig = {'host': '127.0.0.1', 'user': 'vsearch', 'password': 'vsearchpasswd', 'database': 'vsearchlogDB', }
+    conn = mysql.connector.connect(**dbconfig)
+    cursor = conn.cursor()
+    _SQL = """insert into log (phrase, letters, ip, browser_string, results) values(%s, %s, %s, %s, %s)"""
+    cursor.execute(_SQL, (request.form['phrase'], request.form['letters'], request.remote_addr, request.user_agent.browser, res))
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 
 @app.route('/viewlog')

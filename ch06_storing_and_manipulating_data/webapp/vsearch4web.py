@@ -34,10 +34,17 @@ def log_request(req: 'flask_request', res: str) -> None:
 
 
 @app.route('/viewlog')
-def view_the_log() -> str:
+def view_the_log() -> 'html':
+    contents = []   # contains lists in list
     with open('vsearch.log') as logfile:
-        contents = logfile.read()
-    return escape(contents)
+        for line in logfile:
+            escape_line = escape(line)
+            contents.append(escape_line.split('|'))
+        titles = ['Form Data', 'Remote_addr', 'User_agent', 'Results']
+    return render_template('viewlog.html',
+                           the_title='View Log',
+                           the_row_titles=titles,
+                           the_data=contents)
 
 
 if __name__ == '__main__':

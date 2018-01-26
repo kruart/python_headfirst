@@ -32,3 +32,9 @@ except Exception as ex:
 with open("hello.txt", "w") as somefile:
     somefile.write("hello world")
 
+
+with open('todos.txt') as somefile:
+    content = somefile.read()
+
+    print('=====================')
+    print(content)

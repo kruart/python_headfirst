@@ -30,7 +30,7 @@ def log_request(req: 'flask_request', res: str) -> None:
     phrase = request.form['phrase']
     letters = request.form['letters']
     with open('vsearch.log', 'a') as logfile:
-        print(req, res, file=logfile)
+        print(req.form, req.remote_addr, req.user_agent, res, file=logfile, sep='|')
 
 
 @app.route('/viewlog')

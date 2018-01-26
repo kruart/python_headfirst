@@ -32,5 +32,13 @@ def log_request(req: 'flask_request', res: str) -> None:
     with open('vsearch.log', 'a') as logfile:
         print(req, res, file=logfile)
 
+
+@app.route('/viewlog')
+def view_the_log() -> str:
+    with open('vsearch.log') as logfile:
+        contents = logfile.read()
+    return escape(contents)
+
+
 if __name__ == '__main__':
     app.run(debug=True)

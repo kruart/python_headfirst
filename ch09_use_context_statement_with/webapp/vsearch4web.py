@@ -4,7 +4,7 @@ from ch09_use_context_statement_with.webapp.DBcm import UseDatabase
 
 app = Flask(__name__)
 
-dbconfig = {'host': '127.0.0.1',
+app.config['dbconfig'] = {'host': '127.0.0.1',
                           'user': 'vsearch',
                           'password': 'vsearchpasswd',
                           'database': 'vsearchlogDB', }
@@ -13,7 +13,7 @@ dbconfig = {'host': '127.0.0.1',
 def log_request(req: 'flask_request', res: str) -> None:
     """Log details of the web request and the results."""
 
-    with UseDatabase(dbconfig) as cursor:
+    with UseDatabase(app.config['dbconfig']) as cursor:
         _SQL = """insert into log (phrase, letters, ip, browser_string, results) values(%s, %s, %s, %s, %s)"""
         cursor.execute(_SQL, (req.form['phrase'], req.form['letters'], req.remote_addr, req.user_agent.browser, res))
 

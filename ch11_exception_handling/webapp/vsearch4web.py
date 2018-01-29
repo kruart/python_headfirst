@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, session
 from ch04_functions_modules.vsearch import search4letters
-from ch09_use_context_statement_with.webapp.DBcm import UseDatabase
+from ch11_exception_handling.webapp.DBcm import UseDatabase, ConnectionError, CredentialsError, SQLError
 from ch11_exception_handling.webapp.checker import check_logged_in
 
 app = Flask(__name__)
@@ -62,16 +62,27 @@ def entry_page() -> 'html':
 @check_logged_in
 def view_the_log() -> 'html':
     """Display the contents of the log file as a HTML table."""
-    with UseDatabase(app.config['dbconfig']) as cursor:
-        _SQL = 'select phrase, letters, ip, browser_string, results from log'
-        cursor.execute(_SQL)
-        contents = cursor.fetchall()
-        titles = ['Phrase', 'Letters', 'Remote_addr', 'User_agent', 'Results']
+    try:
+        with UseDatabase(app.config['dbconfig']) as cursor:
+            _SQL = 'select phrase, letters, ip, browser_string, results from log'
+            cursor.execute(_SQL)
+            contents = cursor.fetchall()
+            titles = ['Phrase', 'Letters', 'Remote_addr', 'User_agent', 'Results']
 
-    return render_template('viewlog.html',
-                           the_title='View Log',
-                           the_row_titles=titles,
-                           the_data=contents)
+        return render_template('viewlog.html',
+                               the_title='View Log',
+                               the_row_titles=titles,
+                               the_data=contents)
+
+    except ConnectionError as err:
+        print('Is your database switched on? Error:', str(err))
+    except CredentialsError as err:
+        print('User-id/Password issues. Error:', str(err))
+    except SQLError as err:
+        print('Is your query correct? Error:', str(err))
+    except Exception as err:
+        print('Something went wrong:', str(err))
+    return 'Error'
 
 
 app.secret_key = 'YouWillNeverGuessMySecretKey'
